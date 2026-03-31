@@ -1,73 +1,84 @@
 # PawPal+ (Module 2 Project)
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+PawPal+ is a Streamlit app that helps a pet owner plan and prioritize daily care tasks for their pet(s). It uses a smart scheduling algorithm to fit the most important tasks into the owner's available time window.
 
-## Scenario
+---
 
-A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
+## 📸 Demo
 
-- Track pet care tasks (walks, feeding, meds, enrichment, grooming, etc.)
-- Consider constraints (time available, priority, owner preferences)
-- Produce a daily plan and explain why it chose that plan
+<a href="/course_images/ai110/streamlit.png" target="_blank">
+  <img src='/course_images/ai110/streamlit.png' title='PawPal App' width='' alt='PawPal App' class='center-block' />
+</a>
 
-Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
+---
 
-## What you will build
+## ✨ Features
 
-Your final app should:
+- **Priority-based scheduling** — Tasks are sorted by priority (1–5). The scheduler fills the day with the highest-priority tasks first, dropping lower-priority ones if time runs out.
+- **Duration tiebreaker** — Among tasks with equal priority, shorter tasks are scheduled first to maximize the number of tasks that fit.
+- **Conflict detection** — If all priority-5 (critical) tasks combined exceed the owner's available time, the app displays a warning before generating the plan so the owner knows something will be dropped.
+- **Recurring tasks** — Tasks can be marked as `daily` or `weekly`. When completed, their due date automatically advances using `timedelta` so they reappear on the correct day.
+- **Filtering** — Tasks can be filtered by pet name or completion status. The UI shows both the scheduled plan and a separate table of all incomplete tasks with due dates.
+- **Skipped task visibility** — Tasks that didn't fit in the schedule are shown separately so the owner knows what was left out and why.
+- **Plan explanation** — The app explains why each task was chosen and what the total time usage looks like.
 
-- Let a user enter basic owner + pet info
-- Let a user add/edit tasks (duration + priority at minimum)
-- Generate a daily schedule/plan based on constraints and priorities
-- Display the plan clearly (and ideally explain the reasoning)
-- Include tests for the most important scheduling behaviors
+---
 
-## Getting started
+## 🗂 Project Structure
+```
+pawpal_system.py   # All backend classes: Task, Pet, Owner, Scheduler
+app.py             # Streamlit UI
+main.py            # CLI demo and manual testing script
+tests/
+  test_pawpal.py   # Automated test suite (pytest)
+uml_final.png      # Final class diagram
+reflection.md      # Design and AI collaboration reflection
+```
 
-### Setup
+---
 
+## ⚙️ Setup
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Suggested workflow
+---
 
-1. Read the scenario carefully and identify requirements and edge cases.
-2. Draft a UML diagram (classes, attributes, methods, relationships).
-3. Convert UML into Python class stubs (no logic yet).
-4. Implement scheduling logic in small increments.
-5. Add tests to verify key behaviors.
-6. Connect your logic to the Streamlit UI in `app.py`.
-7. Refine UML so it matches what you actually built.
+## 🚀 Run the App
+```bash
+python -m streamlit run app.py
+```
 
-## Smarter Scheduling
+---
 
-PawPal+ includes several algorithmic improvements beyond basic task listing:
-
-- **Priority-based sorting**: Tasks are sorted by priority (highest first). Duration is used as a tiebreaker — shorter tasks go first among equal priorities to fit more into the available window.
-- **Filtering**: Tasks can be filtered by pet name or completion status using `get_tasks_by_pet()` and `get_incomplete_tasks()`.
-- **Recurring tasks**: Tasks support `daily` and `weekly` frequencies. When marked complete, their `due_date` auto-advances using `timedelta` so they reappear on the correct day.
-- **Conflict detection**: The scheduler warns if all priority-5 tasks combined exceed the owner's available time, so the user knows critical tasks may be dropped before the plan is generated.
-
-## Testing PawPal+
-
-Run the full test suite with:
+## 🧪 Testing PawPal+
 ```bash
 python -m pytest tests/test_pawpal.py -v
 ```
 
 ### What the tests cover
 
-- **Task completion**: Marking a task complete changes its status correctly
-- **Task addition**: Adding a task to a pet increases that pet's task count
-- **Time constraint**: Generated plan never exceeds owner's available minutes
-- **Priority sorting**: Tasks are returned highest priority first
-- **Empty pet**: Scheduler handles a pet with no tasks without crashing
-- **Recurring reset**: Daily tasks reset `completed` to False and advance `due_date` by one day after being marked complete
-- **Conflict detection**: Scheduler warns when priority-5 tasks alone exceed available time
+- **Task completion** — Marking a task complete changes its status correctly
+- **Task addition** — Adding a task to a pet increases that pet's task count
+- **Time constraint** — Generated plan never exceeds owner's available minutes
+- **Priority sorting** — Tasks are returned highest priority first
+- **Empty pet** — Scheduler handles a pet with no tasks without crashing
+- **Recurring reset** — Daily tasks reset `completed` to False and advance `due_date` by one day
+- **Conflict detection** — Scheduler warns when priority-5 tasks alone exceed available time
 
 ### Confidence Level
 
 ⭐⭐⭐⭐ (4/5) — Core scheduling behaviors are well covered. Edge cases like weekly recurrence, multi-pet conflicts, and invalid input validation would be the next things to test.
+
+---
+
+## 🧠 Smarter Scheduling
+
+PawPal+ includes several algorithmic improvements beyond basic task listing:
+
+- **Priority-based sorting** — Tasks sorted by priority descending, duration ascending as tiebreaker
+- **Filtering** — `get_tasks_by_pet()` and `get_incomplete_tasks()` for targeted task views
+- **Recurring tasks** — `daily` and `weekly` frequencies with automatic `due_date` advancement via `timedelta`
+- **Conflict detection** — Warns when critical tasks alone exceed the available time budget

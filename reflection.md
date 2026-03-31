@@ -30,10 +30,16 @@ After reviewing the skeleton, I noticed Scheduler was maintaining its own task_l
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+The scheduler considers two constraints: available time (minutes) and task priority (1–5). I decided time was the hard constraint — tasks that don't fit get dropped entirely. Priority determines order, so high-priority tasks always get scheduled first.
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
+The scheduler uses a greedy approach: it fills the schedule top-to-bottom by priority until time runs out. This means a lower-priority task that would fit gets skipped if a higher-priority task ahead of it already consumed the remaining time. This is reasonable because pet care has real priorities — medication matters more than playtime — and the owner would rather have the most important tasks done than a "fuller" schedule with less critical ones.
+
+
 
 
 ---

@@ -51,10 +51,14 @@ The scheduler uses a greedy algorithm: it fills the schedule top-to-bottom by pr
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+I used AI tools throughout every phase of this project. In the design phase, I used it to brainstorm classes and generate the initial Mermaid UML diagram. During implementation, I used it to generate method stubs and flesh out the scheduling logic. For testing, I used it to draft pytest functions covering edge cases I hadn't thought of. The most helpful prompts were specific ones that referenced my actual code — asking "based on this skeleton, how should Scheduler retrieve tasks from Owner" got a much better answer than a generic question about schedulers.
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+When I asked AI to suggest a more Pythonic version of generate_plan(), it proposed using itertools.takewhile(). I rejected this because takewhile stops at the first task that doesn't fit, which means a 25-minute low-priority task would block a 5-minute task behind it from being scheduled. My greedy loop correctly skips tasks that don't fit and keeps checking the rest. The AI suggestion was shorter but logically wrong for this use case. I caught it by tracing through a concrete example manually.
 
 ---
 
@@ -65,11 +69,14 @@ The scheduler uses a greedy algorithm: it fills the schedule top-to-bottom by pr
 - What behaviors did you test?
 - Why were these tests important?
 
+I tested task completion status, pet task count after adding, plan staying within available time, priority sort order, empty pet handling, daily recurrence reset, and conflict detection triggering correctly. These were important because they cover both the happy path and the edge cases most likely to break silently — a scheduler that runs but returns wrong results is worse than one that crashes.
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
 
+4/5. The core scheduling logic is well covered. I would next test weekly recurrence, multi-pet conflict scenarios where tasks from different pets compete, and invalid input like negative duration or priority out of range.
 ---
 
 ## 5. Reflection
@@ -77,11 +84,16 @@ The scheduler uses a greedy algorithm: it fills the schedule top-to-bottom by pr
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+The separation between the logic layer (pawpal_system.py) and the UI (app.py) worked well. Because I built and tested the backend in isolation first using main.py, wiring it to Streamlit was straightforward — I wasn't debugging logic and UI at the same time.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+I would add a time_of_day field to Task so the scheduler could produce an actual ordered timeline (8am walk, 8:30am feed) rather than just a priority-ranked list. I would also support multiple pets more explicitly in the UI — right now it always assigns tasks to pets[0].
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+The most important thing I learned is that AI is a fast first-draft tool, not a decision-maker. It can generate a working implementation in seconds, but it doesn't know your constraints, your design goals, or what "correct" means for your specific problem. The itertools.takewhile suggestion looked clean but was wrong. Being the lead architect means you have to understand the code well enough to catch that — you can't just accept output because it runs.

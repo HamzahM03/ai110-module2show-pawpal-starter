@@ -13,11 +13,14 @@ Generate a daily plan — the app takes the task list and constraints and produc
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+I designed four classes: Task, Pet, Owner, and Scheduler. Task holds a single care action with a name, duration, priority, category, and completed status, it knows whether it can be scheduled and can mark itself done. Pet owns a list of tasks and represents the animal being cared for (name, species, age). Owner holds the person's name, daily available time, and preferences, and maintains a list of pets. Scheduler is the logic layer, it takes a pet and the owner's available time, pulls the task list, and generates an ordered daily plan with an explanation.
+
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
 
+After reviewing the skeleton, I noticed Scheduler was maintaining its own task_list separately from pet.tasks, which would create a sync problem. I removed self.task_list from Scheduler and updated generate_plan() to pull tasks directly from self.pet.get_tasks() instead. I also noted that Owner is not passed into Scheduler — the caller passes available_minutes directly — and documented this as an intentional simplification for now.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
@@ -31,6 +34,7 @@ Generate a daily plan — the app takes the task list and constraints and produc
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
 
 ---
 

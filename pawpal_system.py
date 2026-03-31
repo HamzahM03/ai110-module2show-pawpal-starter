@@ -55,8 +55,7 @@ class Scheduler:
     def __init__(self, pet: Pet, available_time: int):
         self.pet = pet
         self.available_time = available_time
-        self.task_list: list[Task] = []
-
+        
     def generate_plan(self) -> list[Task]:
         """Build and return an ordered list of tasks that fit within available_time."""
         pass

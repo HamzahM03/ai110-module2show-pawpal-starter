@@ -30,14 +30,14 @@ After reviewing the skeleton, I noticed Scheduler was maintaining its own task_l
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
-The scheduler considers two constraints: available time (minutes) and task priority (1–5). I decided time was the hard constraint — tasks that don't fit get dropped entirely. Priority determines order, so high-priority tasks always get scheduled first.
+The scheduler considers two constraints: available time (minutes) and task priority (1–5). Time is a hard constraint — tasks that don't fit are dropped entirely regardless of priority. Priority determines order, so high-priority tasks are always scheduled first. I chose time as the hard constraint because pet care has a fixed daily window and it's better to drop low-priority tasks than to overcommit the owner.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
-The scheduler uses a greedy approach: it fills the schedule top-to-bottom by priority until time runs out. This means a lower-priority task that would fit gets skipped if a higher-priority task ahead of it already consumed the remaining time. This is reasonable because pet care has real priorities — medication matters more than playtime — and the owner would rather have the most important tasks done than a "fuller" schedule with less critical ones.
+The scheduler uses a greedy algorithm: it fills the schedule top-to-bottom by priority and drops any task that doesn't fit in the remaining time, then continues checking the rest. This means a 25-minute low-priority task might get skipped while a 5-minute task behind it still fits. The tradeoff is that the schedule is never truly optimal — a dynamic programming approach could find the maximum-value combination of tasks within the time budget. However, the greedy approach is fast, predictable, and easy to explain to a pet owner. For a daily care app, explainability matters more than perfect optimization.
 
 
 

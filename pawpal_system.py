@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date, timedelta
 
 
 @dataclass
@@ -9,25 +10,35 @@ class Task:
     category: str          # "walk" | "feed" | "med" | "grooming" | "enrichment"
     completed: bool = False
     recurring: bool = False
+    frequency: str = "none"   # "none" | "daily" | "weekly"
+    due_date: date = field(default_factory=date.today)
 
     def __post_init__(self):
         if not (1 <= self.priority <= 5):
             raise ValueError(f"Priority must be 1–5, got {self.priority}")
         if self.duration <= 0:
             raise ValueError(f"Duration must be positive, got {self.duration}")
+        if self.frequency not in ("none", "daily", "weekly"):
+            raise ValueError(f"Frequency must be 'none', 'daily', or 'weekly', got {self.frequency}")
 
     def mark_complete(self) -> None:
-        """Mark this task as completed."""
+        """Mark task complete and advance due_date if recurring."""
         self.completed = True
+        if self.frequency == "daily":
+            self.due_date = date.today() + timedelta(days=1)
+            self.completed = False   # auto-reset for tomorrow
+        elif self.frequency == "weekly":
+            self.due_date = date.today() + timedelta(weeks=1)
+            self.completed = False   # auto-reset for next week
 
     def reset(self) -> None:
-        """Reset a recurring task so it can be scheduled again next day."""
+        """Manually reset a recurring task (used by reset_day)."""
         if self.recurring:
             self.completed = False
 
     def is_schedulable(self) -> bool:
-        """Return True if this task hasn't been completed yet."""
-        return not self.completed
+        """Return True if task is incomplete and due today or earlier."""
+        return not self.completed and self.due_date <= date.today()
 
 
 @dataclass
@@ -102,12 +113,10 @@ class Scheduler:
 
     def generate_plan(self) -> list[Task]:
         """
-        Sort schedulable tasks by priority (high first), then by duration (short first)
-        as a tiebreaker, then greedily add tasks until available_time is exhausted.
+        Sort schedulable tasks by priority descending, duration ascending as tiebreaker,
+        then greedily add tasks until available_time is exhausted.
         """
         schedulable = [t for t in self.owner.get_all_tasks() if t.is_schedulable()]
-
-        # Primary sort: priority descending, tiebreaker: duration ascending
         schedulable.sort(key=lambda t: (-t.priority, t.duration))
 
         plan = []
@@ -122,10 +131,7 @@ class Scheduler:
         return self._plan
 
     def detect_conflicts(self) -> list[str]:
-        """
-        Return a list of warning messages if critical tasks alone exceed available time.
-        A conflict is when all priority-5 tasks together can't fit in available_time.
-        """
+        """Warn if all priority-5 tasks together exceed available time."""
         warnings = []
         critical = [t for t in self.owner.get_all_tasks() if t.priority == 5 and t.is_schedulable()]
         critical_total = sum(t.duration for t in critical)
@@ -150,10 +156,10 @@ class Scheduler:
         ]
 
         for i, task in enumerate(self._plan, 1):
+            recur_label = f" 🔁 {task.frequency}" if task.frequency != "none" else ""
             lines.append(
                 f"  {i}. {task.name} [{task.category}] — {task.duration} min "
-                f"(priority {task.priority}/5)"
-                + (" 🔁" if task.recurring else "")
+                f"(priority {task.priority}/5){recur_label}"
             )
 
         lines.append("")

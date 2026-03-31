@@ -50,3 +50,24 @@ PawPal+ includes several algorithmic improvements beyond basic task listing:
 - **Filtering**: Tasks can be filtered by pet name or completion status using `get_tasks_by_pet()` and `get_incomplete_tasks()`.
 - **Recurring tasks**: Tasks support `daily` and `weekly` frequencies. When marked complete, their `due_date` auto-advances using `timedelta` so they reappear on the correct day.
 - **Conflict detection**: The scheduler warns if all priority-5 tasks combined exceed the owner's available time, so the user knows critical tasks may be dropped before the plan is generated.
+
+## Testing PawPal+
+
+Run the full test suite with:
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+### What the tests cover
+
+- **Task completion**: Marking a task complete changes its status correctly
+- **Task addition**: Adding a task to a pet increases that pet's task count
+- **Time constraint**: Generated plan never exceeds owner's available minutes
+- **Priority sorting**: Tasks are returned highest priority first
+- **Empty pet**: Scheduler handles a pet with no tasks without crashing
+- **Recurring reset**: Daily tasks reset `completed` to False and advance `due_date` by one day after being marked complete
+- **Conflict detection**: Scheduler warns when priority-5 tasks alone exceed available time
+
+### Confidence Level
+
+⭐⭐⭐⭐ (4/5) — Core scheduling behaviors are well covered. Edge cases like weekly recurrence, multi-pet conflicts, and invalid input validation would be the next things to test.
